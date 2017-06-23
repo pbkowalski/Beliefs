@@ -1,0 +1,13 @@
+{
+  "confidence": 1.0,
+  "map": [
+    [
+      {
+        "targetName": "killer"
+      },
+      {
+        "property": "isTall"
+      }
+    ]
+  ]
+}

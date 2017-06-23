@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="beliefs/BeliefsToMass.java|beliefs/UP_main2.java|beliefs/ReportCalc.java|beliefs/plausibilityMass.java|beliefs/RandomSetFusion.java" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="C:/software/gson-2.8.0.jar"/>
+	<classpathentry kind="lib" path="opencsv-3.9.jar" sourcepath="opencsv-3.9-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
+	<referencedentry kind="lib" path="C:/software/RefereeToolbox/jar/lib/RefereeToolbox.jar" sourcepath="C:/software/RefereeToolbox/RefereeToolbox/src/RefereeToolbox"/>
+</classpath>
