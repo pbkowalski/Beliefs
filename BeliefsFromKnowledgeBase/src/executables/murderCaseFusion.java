@@ -12,7 +12,7 @@ public class murderCaseFusion {
 	  RandomSet randomSet3 = RandomSet.loadJson("data/NewRandomSet3.json");
 	  RandomSet randomSet4 = RandomSet.loadJson("data/NewRandomSet4.json");
       RFDempster_Powerset RFDempster = new RFDempster_Powerset();
-      RandomSet[] rs = {randomSet2, randomSet3, randomSet4};
+      RandomSet[] rs = {randomSet2, randomSet4};
       RandomSet fusionResult2 = randomSet1.fuseRS(rs, RFDempster);
       fusionResult2.getMassAssignment().print(1);
       System.out.println("---");

@@ -40,6 +40,12 @@ public class RandomSet {
 		}
 		this.mass = new MassAssignment(elementList.toArray(new String[elementList.size()][]), probs);
 		this.foD = frame;
+		//hack for now - mass assignment construction does not check for an empty element list
+		if (this.mass.getMass().size()==0){
+			HashMap<String[],Double> bba = new HashMap<String[],Double>();
+			bba.put(frame.getElements().toArray(new String[frame.getElements().size()]),1.0);
+			this.mass = new MassAssignment(bba);
+		}
 		
 	}
 	public RandomSet(FrameOfDiscernment initfoD, MassAssignment mass){
