@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="beliefs/BeliefsToMass.java|beliefs/UP_main2.java|beliefs/ReportCalc.java|beliefs/plausibilityMass.java|beliefs/RandomSetFusion.java" kind="src" path="src"/>
+	<classpathentry excluding="beliefs/BeliefsToMass.java|beliefs/UP_main2.java|beliefs/ReportCalc.java|beliefs/plausibilityMass.java|beliefs/RandomSetFusion.java|executables/ContributionMetricComparison3.java|executables/ContributionMetricComparison2.java" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="opencsv-3.9.jar" sourcepath="opencsv-3.9-sources.jar"/>
-	<classpathentry kind="lib" path="gson-2.3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pk0300/git/Beliefs/BeliefsFromKnowledgeBase/lib/opencsv-3.9.jar" sourcepath="opencsv-3.9-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pk0300/git/Beliefs/BeliefsFromKnowledgeBase/lib/gson-2.3.1.jar"/>
+	<classpathentry kind="lib" path="jamtio.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pk0300/git/Beliefs/BeliefsFromKnowledgeBase/lib/commons-cli-1.4.jar" sourcepath="C:/Users/pk0300/git/Beliefs/BeliefsFromKnowledgeBase/lib/commons-cli-1.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/pk0300/git/Beliefs/BeliefsFromKnowledgeBase/lib/commons-cli-1.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 	<referencedentry kind="lib" path="C:/software/RefereeToolbox/jar/lib/RefereeToolbox.jar" sourcepath="C:/software/RefereeToolbox/RefereeToolbox/src/RefereeToolbox"/>
 </classpath>

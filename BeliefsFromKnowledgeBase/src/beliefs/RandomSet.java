@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Random;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
@@ -51,6 +53,41 @@ public class RandomSet {
 	public RandomSet(FrameOfDiscernment initfoD, MassAssignment mass){
 		foD=initfoD;
 		this.mass=mass;
+	}
+	/*
+	 * Generate a semi-random random set by perturbing the initialising rs
+	 */
+	public RandomSet(RandomSet initRS, double var, Random rngen, Boolean divergent){
+		foD = initRS.getFrameOfDiscernment();
+		
+		//MassAssignment mass = initRS.getMassAssignment();
+		HashMap<String[], Double> bba = new HashMap<String[], Double>(initRS.getMassAssignment().getMass());
+		this.mass = new MassAssignment(bba);
+		if(divergent){
+			this.mass.perturb2(var, rngen);
+		}
+		else{
+			this.mass.perturb(var, rngen);
+		}
+	}
+	
+	
+	
+	public RandomSet(String focus){
+		// generate a bba focused on focus
+		 String[] set = {focus};
+		 double[] probs = {1};
+		 String[][] keys = {set};
+		 this.mass = new MassAssignment(keys, probs);
+		 this.foD = new FrameOfDiscernment(set);
+	}
+	
+	public RandomSet(String[] focus){
+		// generate a bba focused on focus
+		 double[] probs = {1};
+		 String[][] keys = {focus};
+		 this.mass = new MassAssignment(keys, probs);
+		 this.foD = new FrameOfDiscernment(focus);
 	}
 	public RandomSet(MassAssignment mass){
 		this.mass=mass;
@@ -94,6 +131,10 @@ public class RandomSet {
 	
 	public RandomSet plausibilityMass (finalPowerset aProp){
 		return new RandomSet(this.getFuser().plausibilityMass(aProp), this.foD);
+	}
+	public RandomSet plausibilityMass(String decision) {
+		String[] focalSet = {decision};
+		return plausibilityMass(focalSet);
 	}
 	
 	public finalPowerset getProposition(String[] focalSet){
@@ -144,6 +185,30 @@ public class RandomSet {
 		return new RandomSet(fusionOutcome,jointFrame);
 	}
 	
+	
+	/**
+	 * Consecutively combine all the random sets contained in <i>list</i>
+	 */
+	public static RandomSet fuseRSList(List<RandomSet> list, RefereeFunctionDefault<finalPowerset> theRefereeFunction){
+		//Take the first element and remove it from the list
+		List<RandomSet> tempList = new ArrayList<RandomSet>(list);
+		RandomSet store = tempList.get(0);
+		tempList.remove(0);
+		for (RandomSet rs : tempList){
+			/*
+			 * Align frames of reference
+			 */
+			FrameOfDiscernment jointFrame = store.getFrameOfDiscernment().mergeFrames(rs.getFrameOfDiscernment());
+			RandomSet temp1 = new RandomSet(jointFrame, store.getMassAssignment());
+			RandomSet temp2 = new RandomSet(jointFrame, rs.getMassAssignment());
+			finalRefereeFuserRTS_Powerset fusionOutcome = new finalRefereeFuserRTS_Powerset();
+			fusionOutcome.fuse(temp1.getFuser(), temp2.getFuser(), theRefereeFunction);
+			store = new RandomSet(fusionOutcome, jointFrame);
+		}
+		return store;
+	}
+	
+	
 	public RandomSet fuseRS(RandomSet[] randomSets, RefereeFunctionDefault<finalPowerset> theRefereeFunction){
 		
 		/*
@@ -172,6 +237,11 @@ public class RandomSet {
 	
 	public double findDistance(RandomSet rs){
 		return this.getFuser().findDistance(rs.getFuser());
+	}
+	
+	public double findTessemDistance(RandomSet rs){
+		return this.getFuser().findTessemDistance(rs.getFuser());
+
 	}
 	public double Bel(String[] aProp){
 		finalPowerset[] subsets = foD.generatePowerset();
@@ -210,6 +280,66 @@ public class RandomSet {
 		return result;
 		}
 	}
+	public String[] makeDecisionDistances(){
+		return makeDecisionDistances(false);
+	}
+	public String[] makeDecisionDistances(boolean allowSingletonsOnly){
+		double maxd = 1;
+		String[] decision = null;
+		if(allowSingletonsOnly == true){
+			String decisionS = null;
+			for (String focus: this.foD.getElements()){
+				RandomSet foo = new RandomSet(focus);
+				foo.extendRandomSet(this.getFrameOfDiscernment());
+				double d = this.findDistance(foo);
+				if (d<maxd){
+					maxd = d;
+					decisionS = focus;
+				}
+				decision = new String[] {decisionS};
+			}
+		}
+		else{
+			for (String[] focus: this.foD.getPowerSetWithoutEmptySet()){
+				RandomSet foo = new RandomSet(focus);
+				foo.extendRandomSet(this.getFrameOfDiscernment());
+				double d = this.findDistance(foo);
+				if (d<maxd){
+					maxd = d;
+					decision = focus;
+				}
+			}
+		}
+		return decision;
+	}
+	public String makeDecisionDistancesSingleton(){
+		double maxd = 1;
+		String decision = new String();
+		for (String element: this.foD.elements){
+			RandomSet foo = new RandomSet(element);
+			foo.extendRandomSet(this.getFrameOfDiscernment());
+			double d = this.findDistance(foo);
+			if (d<maxd){
+				maxd = d;
+				decision = element;
+			}
+		}
+		return decision;
+	}
+		public double goodnessOfDecision( String[] decision){
+			double sum = 0;
+			RandomSet foo = new RandomSet(decision);
+			foo.extendRandomSet(this.getFrameOfDiscernment());
+			double d = this.findDistance(foo);
+			for (String[] focalSet: this.foD.getPowerSetWithoutEmptySet()){
+				foo = new RandomSet(focalSet);
+				foo.extendRandomSet(this.getFrameOfDiscernment());
+				double debug = this.findDistance(foo);
+				sum +=debug;
+			}
+			double quality = 1 - d/sum;
+			return quality;
+	}
 	
 	public String[] makeDecisionPlaus(){
 		finalRefereeFuserRTS_Powerset thisFuser = this.getFuser();
@@ -244,6 +374,7 @@ public class RandomSet {
 		Gson gson = new Gson();
 		return gson.fromJson(new FileReader(filepath), RandomSet.class);
 	}
+
 
 	
 

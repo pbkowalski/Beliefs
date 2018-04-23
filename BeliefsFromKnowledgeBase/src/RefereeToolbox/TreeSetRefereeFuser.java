@@ -83,7 +83,7 @@ public class TreeSetRefereeFuser<Prop extends Lattice<Prop>,
         return fuse(bbaTab, theRefereeFunction);
     }
     /**
-     * Return the BBA containing only the focal sets which are supersets of <i>aProposition</i>. The remaining mass is redistributed across the remaining focal sets.
+     * Return the BBA containing only the focal sets which intersect <i>aProposition</i>. The remaining mass is redistributed across the remaining focal sets.
      * @param aProposition
      * @return
      */
@@ -93,7 +93,7 @@ public class TreeSetRefereeFuser<Prop extends Lattice<Prop>,
         for (Iterator<Assignment<Prop>> it = bbaTreeA.iterator();
                 it.hasNext(); ) {
         	Assignment<Prop> currentPair=it.next();
-        	if(currentPair.attribute.contains(aProposition))
+        	if(currentPair.attribute.intersects(aProposition))
                 plausMass.add(currentPair.attribute, currentPair.value/Plaus);
         }
     	return plausMass;

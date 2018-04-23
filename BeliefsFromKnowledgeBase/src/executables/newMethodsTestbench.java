@@ -47,6 +47,9 @@ public class newMethodsTestbench {
 	      RandomSet[] rs = {randomSet2, randomSet3};
 	      RandomSet fusionResult2 = randomSet1.fuseRS(rs, referee1);
 	      System.out.print(fusionResult2.getFuser().state(1));
+	      
+	      String[] decision = fusionResult2.makeDecisionDistances();
+
 	 //     RFDisjunctive_Powerset referee2 = new RFDisjunctive_Powerset();
 	 //     RFDuboisPrade_Powerset referee3 = new RFDuboisPrade_Powerset();
 	//      RFPCRSharp_Powerset referee5  =new RFPCRSharp_Powerset();

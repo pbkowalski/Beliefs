@@ -46,8 +46,12 @@ public class contributionMetricTests {
 
 		  List<Double> belief = new ArrayList<Double>();
 		  List<Double> belief_F = new ArrayList<Double>();
+		  List<Double> belief_2 = new ArrayList<Double>();
+
 		  List<Double> plaus = new ArrayList<Double>();
 		  List<Double> plaus_F = new ArrayList<Double>();
+		  List<Double> plaus_2 = new ArrayList<Double>();
+
 		  List<Double> bel_diff = new ArrayList<Double>();
 		  List<Double> plaus_diff = new ArrayList<Double>();
 		  List<Double> Amass = new ArrayList<Double>();
@@ -89,8 +93,12 @@ public class contributionMetricTests {
 					  ABmass.add(propAB.doubleValue());
 					  belief.add(randomSet2.Bel(theProp));
 					  belief_F.add(fusionResult.Bel(theProp));
+					  belief_2.add(randomSet1.Bel(theProp));
+
 					  plaus.add(randomSet2.Pl(theProp));
 					  plaus_F.add(fusionResult.Pl(theProp));
+					  plaus_2.add(randomSet1.Pl(theProp));
+
 					  bel_diff.add(fusionResult.Bel(theProp) - randomSet2.Bel(theProp));
 					  plaus_diff.add(fusionResult.Pl(theProp) - randomSet2.Pl(theProp));
 				  
@@ -102,11 +110,11 @@ public class contributionMetricTests {
 
 		//  }
 		  
-		  List<String> listOfHeaders = Arrays.asList("m1(A)","m1(B)","m1(AB)","contribution(m1|A)","contribution(m2|A)(0.6,0.2,0.2)","C(m2)-C(m1)","bel1(A)","plaus1(A)","bel_F(A)","bel_diff","pl_diff");
+		  List<String> listOfHeaders = Arrays.asList("m1(A)","m1(B)","m1(AB)","contribution(m1|A)","contribution(m2|A)(0.6,0.2,0.2)","C(m2)-C(m1)","bel1(A)","bel2(A)","plaus1(A)","plaus2(A)","bel_F(A)","bel_diff","pl_diff");
 		  List<List<Double>> listOfData = new ArrayList<List<Double>>();
 		  listOfData.add(Amass);listOfData.add(Bmass);listOfData.add(ABmass);
 		  listOfData.add(contribution);listOfData.add(contribution1);listOfData.add(contributionDiff);
-		  listOfData.add(belief);listOfData.add(plaus);listOfData.add(belief_F);listOfData.add(bel_diff);listOfData.add(plaus_diff);
+		  listOfData.add(belief);listOfData.add(belief_2);listOfData.add(plaus);listOfData.add(plaus_2);listOfData.add(belief_F);listOfData.add(bel_diff);listOfData.add(plaus_diff);
 		  CSVUtil.writeByColumn(listOfData, listOfHeaders, "contributionplay19_04006.csv");
 
 

@@ -7,16 +7,17 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import RefereeToolbox.finalPowerset;
 
 
 public class FrameOfDiscernment {
-	Set<String> elements;
+	TreeSet<String> elements;
 	
 	public FrameOfDiscernment(int size){
-		elements = new LinkedHashSet<String>(size);
+		elements = new TreeSet<String>();
 		char[] alphabeticArray = populateElementsList(size);
 
 		for (int i=0; i<size; i++){
@@ -26,19 +27,21 @@ public class FrameOfDiscernment {
 	}
 	
 	public FrameOfDiscernment(String[] sets){
-		elements = new LinkedHashSet<String>(Arrays.asList(sets));
+		elements = new TreeSet<String>(Arrays.asList(sets));
 	}
 	
 	public FrameOfDiscernment(Set<String> elements){
-		this.elements= elements;
+		this.elements= new TreeSet<String>(elements);
 	}
+	
+
 	/**
 	 * Return a new frame of discernment containing elements of <i>this</i> and <i>frame2</i>
 	 * @param frame2
 	 * @return
 	 */
 	public FrameOfDiscernment mergeFrames(FrameOfDiscernment frame2){
-		Set<String> newElements = new LinkedHashSet<String>();
+		TreeSet<String> newElements = new TreeSet<String>();
 		newElements.addAll(this.elements);
 		newElements.addAll(frame2.elements);
 		FrameOfDiscernment newFrame = new FrameOfDiscernment(newElements);
@@ -121,6 +124,19 @@ public class FrameOfDiscernment {
 	public String[][] getPowerSet(){
 		List<String[]> elementList = new ArrayList<String[]>();
 		for(int i = 0; i<(int)Math.pow(2, elements.size());i++){
+			elementList.add(getSubset(i));
+
+		}
+		return elementList.toArray(new String[elementList.size()][]);
+	}
+	
+	/**
+	 * Return a two-dimensional string array containing the identifiers of all the members of the power set without the empty set
+	 * @return
+	 */
+	public String[][] getPowerSetWithoutEmptySet(){
+		List<String[]> elementList = new ArrayList<String[]>();
+		for(int i = 1; i<(int)Math.pow(2, elements.size());i++){
 			elementList.add(getSubset(i));
 
 		}

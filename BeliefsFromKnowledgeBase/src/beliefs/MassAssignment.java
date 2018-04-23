@@ -1,10 +1,14 @@
 package beliefs;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -124,6 +128,8 @@ public class MassAssignment{
 			i++;
 		}
 	}
+	
+	
 	/**
 	 * Generate a random mass assignment for <i>frame</i> using <i>rngen</i>
 	 * @param keys
@@ -135,6 +141,42 @@ public class MassAssignment{
 		probs[0]=0;
 		for (int i=1; i < frame.getPowersetSize(); i++){
 			probs[i]=rngen.nextDouble();
+		}
+		//normalize so that the probabilities add to 1
+		probs = normalize(probs, 1.0);
+		this.bba = new HashMap<String[], Double>(probs.length);
+		for (int i = 0; i<probs.length; i++){
+			if (probs[i]>0){
+				
+				bba.put(frame.getSubset(i), probs[i]);
+			}			
+		}
+		
+	}
+	
+	/**
+	 * Generate a random mass assignment for <i>frame</i> using <i>rngen</i> with n focal sets
+	 * @param keys
+	 */
+	public MassAssignment(FrameOfDiscernment frame , Random rngen, int n){
+		
+		double[] probs = new double[frame.getPowersetSize()];
+		if (n> frame.getPowersetSize()-1){ n = frame.getPowersetSize()-1;}
+		List<Integer> list= new ArrayList<Integer>();
+		for (int i = 1; i <= frame.getPowersetSize(); i++){
+			list.add(Integer.valueOf(i)); // list from 1 to max
+		}
+		List<Integer> focalSets= new ArrayList<Integer>();
+
+		for (int i = 1; i<= n; i++){
+			int index = rngen.nextInt(frame.getPowersetSize() - i); //index value between 0 and (max-1)
+			focalSets.add(list.get(index));
+			list.remove(index); //remove the element from the list to ensure unique values
+		}
+		//probability of the empty set = 0
+		probs[0]=0;
+		for (Integer i : focalSets){
+			probs[i.intValue()]=rngen.nextDouble();
 		}
 		//normalize so that the probabilities add to 1
 		probs = normalize(probs, 1.0);
@@ -215,6 +257,118 @@ public class MassAssignment{
 		  }
 		return Elements;
 	}
+/**
+ * 
+ */
+	public void perturb(double val, Random rngen){
+		Iterator<Entry<String[], Double>> it = bba.entrySet().iterator();
+		double sum = 0;
+		while (it.hasNext()){
+			Entry<String[], Double> currentMapping = it.next();
+			String[] key = currentMapping.getKey();
+			double current = currentMapping.getValue();
+			double mod = (rngen.nextDouble()-0.5)/0.5*val; //-val to val
+			bba.put(key, current * (1+mod));
+			sum+= current * (1+mod);
+		}
+		it = bba.entrySet().iterator();
+		while (it.hasNext()){
+			Entry<String[], Double> currentMapping = it.next();
+			String[] key = currentMapping.getKey();
+			double current = currentMapping.getValue();
+			bba.put(key, current/sum);
+		}
+	}
+	public void perturb2(double val, Random rngen){
+		//perturb by moving portion of the mass from sets with smaller cardinality to the ones with larger cardinality
+ 		Iterator<Entry<String[], Double>> it = bba.entrySet().iterator();
+		Set<String> Elements = this.getElements();
+		List<String> ElementsAsList = new ArrayList<String>(Elements);
+		//Set<Set<String>> PowerSet = new HashSet<Set<String>>();
+		List<String[]> PowerSet = new ArrayList<String[]>();
+		HashMap<String[], Double> newBBA = new HashMap<String[], Double>();
+		//find powerset
+		for (int i=0; i<Math.pow(2, Elements.size()); i++){
+		    List<Integer> positions = new ArrayList<>();
+			int j = i;
+		    int position = 0;
+		    while (j != 0) {
+		        if ((j & 1) != 0) {
+		            positions.add(position);
+		        }
+		        position++;
+		        j = j >>> 1;
+		    }
+		    List<String> set = new ArrayList<String>();
+		    for (Integer pos: positions){
+		    	set.add(ElementsAsList.get(pos));
+		    }
+		    PowerSet.add(set.toArray(new String[0]));
+		}
+		
+		while (it.hasNext()){
+			//find supersets
+			Entry<String[], Double> currentMapping = it.next();
+			String[] key = currentMapping.getKey();
+			Set<String> k = new HashSet<String>(Arrays.asList(key));
+			List<String[]> superSets = new ArrayList<String[]>();
+			for (String[] s: PowerSet){
+				if (Arrays.asList(s).containsAll(k) && Arrays.asList(s).size()>k.size() ){
+					superSets.add(s);
+				}
+			}
+			if (superSets.size()>0){
+				double current = currentMapping.getValue();
+				if (val>=1){
+					val=1;
+				}
+
+				double mod = val; //redistribute maximum allowed mass instead
+				double newVal = current *(1-mod); // reduce mass by val
+				double redist = current * mod; //mass to be redistributed
+				if (newBBA.containsKey(key)){
+					// higher cardinality focal set may have already had mass redistributed to it
+					newBBA.put(key, newBBA.get(key) + newVal);
+				}
+				else{
+					newBBA.put(key, newVal);
+				}
+				double sum = 0;
+				List<Double> ratios = new ArrayList<Double>(superSets.size());
+				
+				for (int j = 0; j<superSets.size(); j++){
+					//generate random numbers adding to 1 to determine the share of mass each superset gets
+					ratios.add(rngen.nextDouble());
+					sum +=ratios.get(j);
+				}
+				for (int j = 0; j<superSets.size(); j++){
+					//generate random numbers adding to 1 to determine the share of mass each superset gets
+					ratios.set(j, ratios.get(j) / sum);
+				}
+				
+				for (int j = 0; j<superSets.size(); j++){
+					String[] s = superSets.get(j);
+					newVal = ratios.get(j) * redist;
+					if (newBBA.containsKey(s)){
+						// add mass, don't overwrite
+						newBBA.put(s, newBBA.get(s) + newVal);
+					}
+					else{
+						newBBA.put(s, newVal);
+					}
+				}	
+			}
+			
+		}
+		
+		this.bba = newBBA;
+
+	}	
+	
+	/**
+	 * 
+	 * @param printzeros
+	 */
 	public void print(int printzeros){
 		Iterator<Entry<String[], Double>> it = bba.entrySet().iterator();
 		while (it.hasNext()){

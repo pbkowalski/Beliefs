@@ -296,6 +296,7 @@ public class TreeSetBBA<Prop extends Lattice<Prop>,
             		Bba1bba2 += Bba1Current.value * Bba2Current.value * Dij;
 	            		if (iterations ==0){
 	                    	for (Iterator<Assignment<Prop>> bba2norm_it = aBba.bbaTreeA.iterator();
+	                    			//calculation of bba2 norm - do just once for the entire bba2
 	                    			bba2norm_it.hasNext(); ) {
 	                    			Assignment<Prop> Bba2It=bba2norm_it.next(); //m1(aj)
 	                        		temp.and(Bba2Current.attribute, Bba2It.attribute); //(Ai AND Aj)
@@ -314,10 +315,41 @@ public class TreeSetBBA<Prop extends Lattice<Prop>,
         	iterations++;
         }
         distance = 0.5*(Bba1Norm + Bba2Norm - 2*Bba1bba2);
+        if(distance <0){
+        	distance = 0; // an ugly hack to avoid issues associated with floating point arithmetic imprecision
+        }
         distance = Math.sqrt(distance);
     	return distance;
     }
-    
+
+    /**
+     * Compute the Tessem's betting commitment distance between <i>this</i> and input <i>aBba</i>. 
+     */
+        public double findTessemDistance(TreeSetBBA<Prop,B> aBba){
+        	double distance=0;
+        	List<Prop> testedPropList = new ArrayList<Prop>();
+            for (Iterator<Assignment<Prop>> it = this.bbaTreeA.iterator();
+                    it.hasNext(); ) {
+            	Prop theProp=it.next().attribute;
+            	testedPropList.add(theProp);
+            	double d = this.Pbet(theProp) - aBba.Pbet(theProp);
+            	if (d>distance){
+            		distance = d;
+            	}
+            }
+            for (Iterator<Assignment<Prop>> it = aBba.bbaTreeA.iterator();
+                    it.hasNext(); ) {
+            	Prop theProp=it.next().attribute;
+            	if (!testedPropList.contains(theProp)){
+                	testedPropList.add(theProp);
+                	double d = this.Pbet(theProp) - aBba.Pbet(theProp);
+                	if (d>distance){
+                		distance = d;
+                	}
+            	}
+            }
+        	return distance;
+        }
     public double commonalityDivergence (TreeSetBBA<Prop,B> aBba){
     	double comdiv=0;
     	for (Iterator<Assignment<Prop>> it = this.bbaTreeA.iterator();
