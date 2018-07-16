@@ -51,7 +51,8 @@ public class marineVesselFusion {
 		  RandomSet plausConditionedResult2 = fusionResult.plausibilityMass(new String[]{"lPS"});
 		  double dist3 = randomSet1.findDistance(plausConditionedResult2);
 		  double dist4 = randomSet2.findDistance(plausConditionedResult2);
-		  System.out.print(dist1);System.out.print(",");System.out.print(dist2);
+		  System.out.println("Distances to m cond on cGS");
+		  System.out.print(dist1);System.out.print(",");System.out.print(dist2);System.out.print("\n");
 		  System.out.println("Distances to m cond on lPS");
 		  System.out.print(dist3);System.out.print(",");System.out.print(dist4);
 
