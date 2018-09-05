@@ -54,10 +54,22 @@ public class Proposition implements Comparable<Proposition>{
 		}
 		return focalSet;
 	}
+
 	public HashSet<Proposition> createFocalSet(){
 		HashSet<Proposition> focalSet = new HashSet<Proposition>();
 		focalSet.add(this);
 		return focalSet;
-
 	}
+	public HashSet<Proposition> createExtendedFocalSet(FrameOfDiscernment frame){
+        String separator = "|";
+        String wrapper = "$";
+        String part1 = wrapper + this.value + wrapper;
+        HashSet<Proposition> focalSet = new HashSet<Proposition>();
+        for (Proposition p2: frame.elements){
+            String part2 = wrapper + p2.get() + wrapper;
+            String combined = part1+separator+part2;
+            focalSet.add(new Proposition(combined));
+        }
+        return focalSet;
+    }
 }

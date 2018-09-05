@@ -9,13 +9,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,7 +42,24 @@ public class RandomSet {
 		foD=initfoD;
 		this.mass=mass;
 	}
-	
+	//generate a random set with a single variable and its negation
+	public RandomSet(String name, double p, double q, double u){
+        Proposition prop = new Proposition(name);
+        Proposition propNot = new Proposition("not"+name);
+        TreeSet<Proposition> fodset = new TreeSet<>();
+        fodset.add(prop);
+        fodset.add(propNot);
+        this.foD = new FrameOfDiscernment(fodset);
+        HashMap<Set<Proposition>, Double> newbba = new HashMap<>();
+        newbba.put(prop.createFocalSet(), p);
+        newbba.put(propNot.createFocalSet(), q);
+        HashSet<Proposition> unionFS = prop.createFocalSet();
+        unionFS.add(propNot);
+        newbba.put(unionFS,u);
+        this.mass = new MassAssignment(newbba);
+
+
+    }
 
 	public RandomSet(Proposition focus) {
 		 this(focus.createFocalSet());
@@ -135,7 +147,11 @@ public class RandomSet {
 		return mass;
 	}
 	
-
+	public RandomSet vacuousExtension(FrameOfDiscernment frame2){
+	    FrameOfDiscernment newFrame = this.foD.extendFrame(frame2);
+	    MassAssignment newMass = this.mass.extendMassAssignment(frame2);
+	    return new RandomSet(newFrame,newMass);
+	}
 	public RandomSet fuseRS(RandomSet rs2, RefereeFunctionDefault<finalPowerset> theRefereeFunction){
 		/*
 		 * Align frames of reference

@@ -1,19 +1,17 @@
 package beliefs;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
+
 import beliefs.exceptions.probabilityException;
 
 public class MassAssignment{
 	HashMap<Set<Proposition>, Double> bba;
 	double confidence=1;
-	
+
+	public MassAssignment(){
+		this.bba = new HashMap<Set<Proposition>, Double>();
+	}
 	public MassAssignment(HashMap<Set<Proposition>,Double> bba) {
 		this.bba=bba;
 	}
@@ -65,7 +63,8 @@ public class MassAssignment{
 		this.bba = new HashMap<Set<Proposition>, Double>();
 		this.bba.put(Proposition.createFocalSet(elements), 1.0);
 	}
-	
+
+
 	public MassAssignment(Set<String> elements, double confidence){
 		this(elements);
 		this.setConfidence(confidence);
@@ -228,6 +227,10 @@ public class MassAssignment{
 		  }
 		return Elements;
 	}
+	public MassAssignment put(Set<Proposition> key, double value){
+		this.bba.put(key, value);
+		return this;
+	}
 
 	/**
 	 * 
@@ -247,6 +250,21 @@ public class MassAssignment{
 			}
 		}
 		System.out.print("Confidence value: ");System.out.print(this.getConfidence());System.out.print("\n");
+	}
+	public MassAssignment extendMassAssignment(FrameOfDiscernment frame){
+        HashMap<Set<Proposition>, Double> bba2 = new HashMap<>();
+		//iterate through the map
+		Iterator<Entry<Set<Proposition>, Double>> it = bba.entrySet().iterator();
+		while (it.hasNext()){
+		    HashSet<Proposition> fS = new HashSet<>();
+			Entry<Set<Proposition>, Double> currentMapping = it.next();
+
+			for (Proposition p: currentMapping.getKey()){
+                fS.addAll(p.createExtendedFocalSet(frame));
+            }
+            bba2.put(fS, currentMapping.getValue());
+		}
+		return new MassAssignment(bba2);
 	}
 /**
  * Check if probabilities sum up to 1 and if not return a probability array with normalised probabilities

@@ -31,7 +31,6 @@ public class FrameOfDiscernment {
 			elements.add(new Proposition(s));
 		}
 	}
-	
 
 
 	public FrameOfDiscernment(Set<Proposition> e) {
@@ -51,7 +50,26 @@ public class FrameOfDiscernment {
 		FrameOfDiscernment newFrame = new FrameOfDiscernment(newElements);
 		return newFrame;
 	}
-	
+    /**
+     * Return a new frame of discernment containing union of elements of <i>this</i> and <i>frame2</i>
+     * @param frame2
+     * @return
+     */
+	public FrameOfDiscernment extendFrame(FrameOfDiscernment frame2){
+        TreeSet<Proposition> newElements = new TreeSet<Proposition>();
+        String separator = "|";
+        String wrapper = "$";
+        for (Proposition p: this.elements){
+            String part1 = wrapper + p.get() + wrapper;
+            for (Proposition p2: frame2.elements){
+                String part2 = wrapper + p2.get() + wrapper;
+                String combined = part1+separator+part2;
+                newElements.add(new Proposition(combined));
+            }
+        }
+        FrameOfDiscernment newFrame = new FrameOfDiscernment(newElements);
+        return newFrame;
+    }
 	/**
 	 * Return a char array of elements A,B,C....Z (will produce gibberish for larger values but this is temporary anyway) to keep this compatible with the original version
 	 * @param size
